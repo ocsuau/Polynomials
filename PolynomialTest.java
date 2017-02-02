@@ -25,6 +25,13 @@ public class PolynomialTest {
 
         p = new Polynomial(new float[]{-6, 0, 0, 20, -8});
         assertEquals("-6x^4 + 20x - 8", p.toString());
+
+        //////////////////////
+        p = new Polynomial(new float[]{0, -48, 0, 0, 0, 0, -728, 96});
+        assertEquals("-48x^6 - 728x + 96", p.toString());
+
+        p = new Polynomial(new float[]{1});
+        assertEquals("1", p.toString());
     }
     @Test
     public void constructs2() {

@@ -3,9 +3,11 @@ import java.util.Arrays;
 public class Polynomial {
 
     //fields
-    private Monomio [] mon;
-    private StringBuilder monStr = new StringBuilder();
-
+    private float [] mon;
+    private int maxExp = 0;
+    private StringBuilder monStr = new StringBuilder("");
+    private float [] coeF;
+    private int [] expI;
     //constructors
 
     // Constructor per defecte. Genera un polinomi zero
@@ -17,9 +19,8 @@ public class Polynomial {
     public Polynomial(float[] cfs) {
         int count = Zvalue(cfs);
         if(count != cfs.length){
-            int [] exponents = fillExp(cfs.length);
-            createMonArray(cfs, count, exponents);
-            passToString(mon, monStr);
+            mon = cfs;
+            passToString();
         }
         else{
             createValueNull();
@@ -29,28 +30,26 @@ public class Polynomial {
     // Constructor a partir d'un string
     public Polynomial(String s) {
         String [] monOm = s.split(" ");
-        float [] coeF = calcCoefStr(monOm);
-        int [] expI = calcExpStr(monOm);
+        expI = calcExpStr(monOm);
+        coeF = calcCoefStr(monOm);
         int count = Zvalue(coeF);
         if(count != coeF.length){
+            mon = new float [maxExp + 1];
             sortExp(coeF, expI);
-            createMonArray(coeF, count, expI);
-            int nulls = factMon(mon);
-            if(nulls > 0){
-                createNewMon(nulls);
+            factMon(expI, coeF);
+            count = Zvalue(coeF);
+            if(count != coeF.length) {
+                toAsignValues(coeF, expI);
+                passToString();
             }
-            if(mon.length == 1 && mon[0].getCoeficiente() == 0){
+            else{
                 createValueNull();
-            }
-            else {
-                passToString(mon, monStr);
             }
         }
         else {
             createValueNull();
         }
     }
-
 
     //methods
 
@@ -69,26 +68,39 @@ public class Polynomial {
 
     // Multiplica el polinomi amb un altre. No modifica el polinomi actual (this). Genera un de nou
     public Polynomial mult(Polynomial p2) {
-        Monomio [][] results;
+        Polynomial p;
+        float [] provisional = new float [(this.mon.length + p2.mon.length) - 1];
+        Polynomial result = new Polynomial();
         Polynomial op1;
         Polynomial op2;
+
+        //comprobar coincidencias entre op2.mon y op2 y lo correspondiente con op1
         if(this.mon.length >= p2.mon.length){
-            results = new Monomio [p2.mon.length][this.mon.length];
             op1 = p2;
             op2 = this;
         }
         else{
-            results = new Monomio [this.mon.length][p2.mon.length];
             op1 = this;
             op2 = p2;
         }
 
         for(int i = 0; i < op1.mon.length; i++) {
-            for (int j = 0; j < op2.mon.length; j++) {
-                results[i][j] = new Monomio(op1.mon[i].getCoeficiente() * op2.mon[j].getCoeficiente(), op1.mon[i].getExponent() + op2.mon[j].getExponent());
+            if(op1.mon[i] == 0){
+                continue;
             }
+            for (int j = 0; j < op2.mon.length; j++) {
+                if(op2.mon[j] == 0){
+                    continue;
+                }
+                //fotre
+                provisional[provisional.length - (((op1.mon.length - i)) + ((op2.mon.length - j) - 1))] = op1.mon[i] * op2.mon[j];
+                //results[i][j] = new Monomio(op1.mon[i].getCoeficiente() * op2.mon[j].getCoeficiente(), op1.mon[i].getExponent() + op2.mon[j].getExponent());
+            }
+            p = new Polynomial(provisional);
+            result = result.add(p);
+            Arrays.fill(provisional, 0);
         }
-        return null;
+        return result;
     }
 
     // Divideix el polinomi amb un altre. No modifica el polinomi actual (this). Genera un de nou
@@ -103,12 +115,11 @@ public class Polynomial {
     }
 
     // Torna "true" si els polinomis són iguals. Això és un override d'un mètode de la classe Object
-
     @Override
     public boolean equals(Object o) {
         if(o instanceof Polynomial) {
             Polynomial content = (Polynomial) o;
-            if (this.toString().equals(content.toString())){
+            if (this.monStr.toString().equals(content.monStr.toString())){
                 return true;
             }
         }
@@ -123,8 +134,8 @@ public class Polynomial {
     }
 
     void createValueNull(){
-        mon = new Monomio [1];
-        mon[0] = new Monomio(0,0);
+        mon = new float [1];
+        mon[0] = 0;
         monStr.append("0");
     }
 
@@ -138,84 +149,61 @@ public class Polynomial {
         return count;
     }
 
-    int [] fillExp(int qExponents){
-        int [] retoorn = new int [qExponents];
-        for(int i = 0; i < retoorn.length; i ++){
-            retoorn[i] = (retoorn.length - i) - 1;
-        }
-        return retoorn;
-    }
-
-    void createMonArray(float [] cfs, int count, int [] exponents){
-        mon = new Monomio[cfs.length - count];
-        for(int i = 0, j = 0; i < cfs.length; i++){
-           if(cfs[i] != 0){
-                mon[j++] = new Monomio(cfs[i], exponents[i]);
-            }
-        }
-    }
-
-    int factMon(Monomio [] mon){
-        int cont = 0;
-        for(int i = 0; i < mon.length -1; i++){
-            if(mon[i].getExponent() == mon[i+1].getExponent()){
-                mon[i+1].setCoeficiente(mon[i].getCoeficiente() + mon[i+1].getCoeficiente());
-                mon[i] = null;
-                cont ++;
-            }
-        }
-        return cont;
-    }
-
-
-    void createNewMon(int nulls){
-        Monomio [] content = mon;
-        mon = new Monomio [mon.length - nulls];
-        for(int i = 0, j = 0; i < content.length; i ++){
-            if(content[i] != null){
-                mon[j++] = content[i];
-                if(mon[j-1].getCoeficiente() == 0){
-                    mon[j-1].setExponente(0);
-                }
-            }
-        }
-    }
-
-    String passToString(Monomio [] mon, StringBuilder str){
-        for(int i = 0; i < mon.length; i++){
-            if(mon[i].getCoeficiente() == 0){
+    void toAsignValues(float [] coeF, int [] expI){
+        Arrays.fill(mon, 0);
+        for(int i = 0; i < expI.length; i++){
+            if(coeF[i] == 0){
                 continue;
             }
-            if(i == 0 && mon[i].getCoeficiente() < 0){
-                monStr.append("-");
-            }
-            else if(i > 0 && mon[i-1].getCoeficiente() != 0){
-                if(mon[i].getCoeficiente() > 0){
-                    monStr.append(" + ");
-                }
-                else{
-                    monStr.append(" - ");
-                }
-            }
-            if(!(Math.abs(mon[i].getCoeficiente()) == 1)){
-                if(mon[i].getCoeficiente() < 0){
-                    monStr.append(Math.abs(mon[i].getCoeficiente()));
-                }
-                else{
-                    monStr.append(mon[i].getCoeficiente());
-                }
-            }
-            addExponent(i, str);
+            mon[(mon.length - expI[i]) - 1] = coeF[i];
         }
-        return str.toString();
     }
 
-    void addExponent(int i, StringBuilder str){
-        if(mon[i].getExponent() != 0){
-            str.append("x");
+    void factMon(int [] expI, float [] coeF){
+        for(int i = 0; i < expI.length - 1; i++){
+            if(expI[i] == expI[i+1]){
+                coeF[i+1] = coeF[i] + coeF[i+1];
+                expI[i] = 0;
+                coeF[i] = 0;
+            }
         }
-        if(mon[i].getExponent() > 1){
-            str.append("^"+mon[i].getExponent());
+    }
+
+    void passToString(){
+        for(int i = 0; i < mon.length; i++){
+            if(mon[i] == 0){
+                continue;
+            }
+            if(monStr.length() == 0 && mon[i] < 0){
+                monStr.append("-");
+            }
+            else if(i > 0){
+                if(monStr.length() > 0) {
+                    if (mon[i] > 0) {
+                        monStr.append(" + ");
+                    } else {
+                        monStr.append(" - ");
+                    }
+                }
+            }
+            if(!(Math.abs(mon[i]) == 1) || ((i == mon.length - 1) && (Math.abs(mon[i]) == 1))){
+                if(mon[i] < 0){
+                    monStr.append(Math.abs((int) mon[i]));
+                }
+                else{
+                    monStr.append((int) mon[i]);
+                }
+            }
+            addExponent(i);
+        }
+    }
+
+    void addExponent(int i){
+        if((mon.length -i) - 1 > 0){
+            monStr.append("x");
+        }
+        if((mon.length - i) - 1 > 1){
+            monStr.append("^" + ((mon.length -i) -1));
         }
     }
 
@@ -263,6 +251,9 @@ public class Polynomial {
             }
             else{
                 retoorn[j++] = 0;
+            }
+            if(maxExp < retoorn[j-1]){
+                maxExp = retoorn[j-1];
             }
         }
         return retoorn;
