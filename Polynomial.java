@@ -94,7 +94,6 @@ public class Polynomial {
                 }
                 //fotre
                 provisional[provisional.length - (((op1.mon.length - i)) + ((op2.mon.length - j) - 1))] = op1.mon[i] * op2.mon[j];
-                //results[i][j] = new Monomio(op1.mon[i].getCoeficiente() * op2.mon[j].getCoeficiente(), op1.mon[i].getExponent() + op2.mon[j].getExponent());
             }
             p = new Polynomial(provisional);
             result = result.add(p);
@@ -106,7 +105,59 @@ public class Polynomial {
     // Divideix el polinomi amb un altre. No modifica el polinomi actual (this). Genera un de nou
     // Torna el quocient i també el residu (ambdós polinomis)
     public Polynomial[] div(Polynomial p2) {
-       return null;
+        Polynomial provi = this;
+        Polynomial [] retoorn = new Polynomial [2];
+        Polynomial productOne;
+        Polynomial fullProduct;
+        StringBuilder sb = new StringBuilder();
+        int posFirstV;
+        int firstExp;
+        //for(int i = 0; this.expI[i] > p2.expI[0]; i++){
+        while (true){
+            posFirstV = findFirstValue(provi);
+            firstExp = ((provi.mon.length - 1) - posFirstV);
+            if(firstExp < p2.mon.length - 1){
+                retoorn[1] = new Polynomial(provi.toString());
+                return retoorn;
+            }
+            sb.append((int) (provi.mon[posFirstV] / p2.mon[0]));
+            if((firstExp) - (p2.mon.length -1) > 0){
+                sb.append("x");
+                if((firstExp) - (p2.mon.length -1) > 1){
+                    sb.append("^" + ((firstExp) - (p2.mon.length -1)));
+                }
+            }
+            productOne = new Polynomial(sb.toString());
+            if(retoorn[0] == null){
+                retoorn[0] = new Polynomial(productOne.toString());
+            }
+            else{
+                retoorn[0] = retoorn[0].add(productOne);
+            }
+            fullProduct = p2.mult(productOne);
+            changeSign(fullProduct);
+            fullProduct = new Polynomial(fullProduct.mon);
+            provi = provi.add(fullProduct);
+            sb.delete(0,sb.length());
+            //sumar coeficientes con dividendos
+        }
+    }
+
+    private int findFirstValue(Polynomial p){
+        for(int i = 0; i < p.mon.length; i++){
+            if(p.mon[i] != 0){
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    void changeSign(Polynomial fullProduct){
+        for(int i = 0; i < fullProduct.mon.length; i++){
+            if(fullProduct.mon[i] != 0){
+                fullProduct.mon[i] *= -1;
+            }
+        }
     }
 
     // Troba les arrels del polinomi, ordenades de menor a major
