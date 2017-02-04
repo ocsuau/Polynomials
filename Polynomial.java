@@ -161,19 +161,16 @@ public class Polynomial {
 
     // Troba les arrels del polinomi, ordenades de menor a major
     public float[] roots() {
-
         float provi;
-        float [] retoorn;
-        if(this.coeF.length - Zvalue(this.coeF) == 2){
-            if((this.mon[this.mon.length - 1] > 0 && (this.mon.length - 1) % 2 == 0) || this.mon[this.mon.length -1] == 0) {
+        float[] retoorn;
+        if (this.coeF.length - Zvalue(this.coeF) == 2) {
+            if ((this.mon[this.mon.length - 1] > 0 && (this.mon.length - 1) % 2 == 0) || this.mon[this.mon.length - 1] == 0) {
                 return null;
-            }
-            else{
-                if(this.mon[this.mon.length - 1] > 0 && (this.mon.length - 1) % 2 != 0){
-                    retoorn = new float[]{(float)(Math.pow(this.mon[this.mon.length - 1], 1 / (float) (this.mon.length - 1f))) * -1};
+            } else {
+                if (this.mon[this.mon.length - 1] > 0 && (this.mon.length - 1) % 2 != 0) {
+                    retoorn = new float[]{(float) (Math.pow(this.mon[this.mon.length - 1], 1 / (float) (this.mon.length - 1f))) * -1};
                     return retoorn;
-            }
-                else{
+                } else {
                     if ((this.mon.length - 1) == 1) {
                         retoorn = new float[]{this.mon[this.mon.length - 1] * -1};
                         return retoorn;
@@ -184,36 +181,26 @@ public class Polynomial {
                     return retoorn;
                 }
             }
-        }
-        else if(this.mon.length - Zvalue(this.mon) == 3){
-            if(this.mon.length -1 == 2) {
+        } else if (this.mon.length - Zvalue(this.mon) == 3) {
+            if (this.mon.length - 1 == 2) {
                 return retoorn = secDegree();
-            }
-            else{
+            } else {
                 int expProvi = bQuad();
-                if(expProvi > 0){
+                if (expProvi > 0) {
                     retoorn = secDegree();
-//                    if(expProvi > 2) {
-//                        for (int i = 0; i < retoorn.length; i++) {
-//                            retoorn[i] = (float) (Math.pow(retoorn[i], 1 / (float) expProvi));
-//                        }
-//                    }
                     for (int i = 0; i < retoorn.length; i++) {
                         retoorn[i] = (float) (Math.pow(retoorn[i], 1 / (float) expProvi));
                     }
-                    float [] retoorn2 = new float[retoorn.length * 2];
+                    float[] retoorn2 = new float[retoorn.length * 2];
                     createNegative(retoorn2, retoorn);
                     Arrays.sort(retoorn2);
                     return retoorn2;
                 }
             }
         }
-        System.out.println(Arrays.toString(this.mon));
-        System.out.println(Arrays.toString(this.coeF));
-        System.out.println(Arrays.toString(this.expI));
-        System.out.println(this.maxExp);
         return null;
     }
+
 
     float [] secDegree(){
         float [] retoorn;

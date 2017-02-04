@@ -164,7 +164,7 @@ public class PolynomialTest {
         assertEqualsFloats(new float[]{9}, p.roots());
 
 //        // Sense solució
-        p = new Polynomial("23x^2 + 90x + 100");
+        p = new Polynomial("23x^2 + 90x + 100 + 54");
         assertNull(p.roots());
 
 //        // Només una solució
