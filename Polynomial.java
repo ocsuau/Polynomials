@@ -139,7 +139,6 @@ public class Polynomial {
             fullProduct = new Polynomial(fullProduct.mon);
             provi = provi.add(fullProduct);
             sb.delete(0,sb.length());
-            //sumar coeficientes con dividendos
         }
     }
 
@@ -162,7 +161,115 @@ public class Polynomial {
 
     // Troba les arrels del polinomi, ordenades de menor a major
     public float[] roots() {
+
+        float provi;
+        float [] retoorn;
+        if(this.coeF.length - Zvalue(this.coeF) == 2){
+            if((this.mon[this.mon.length - 1] > 0 && (this.mon.length - 1) % 2 == 0) || this.mon[this.mon.length -1] == 0) {
+                return null;
+            }
+            else{
+                if(this.mon[this.mon.length - 1] > 0 && (this.mon.length - 1) % 2 != 0){
+                    retoorn = new float[]{(float)(Math.pow(this.mon[this.mon.length - 1], 1 / (float) (this.mon.length - 1f))) * -1};
+                    return retoorn;
+            }
+                else{
+                    if ((this.mon.length - 1) == 1) {
+                        retoorn = new float[]{this.mon[this.mon.length - 1] * -1};
+                        return retoorn;
+                    }
+                    provi = this.mon[this.mon.length - 1];
+                    provi *= -1;
+                    retoorn = new float[]{(float) (Math.pow(provi, 1 / (float) (this.mon.length - 1f))) * -1, (float) Math.pow(provi, 1 / (float) (this.mon.length - 1f))};
+                    return retoorn;
+                }
+            }
+        }
+        else if(this.mon.length - Zvalue(this.mon) == 3){
+            if(this.mon.length -1 == 2) {
+                return retoorn = secDegree();
+            }
+            else{
+                int expProvi = bQuad();
+                if(expProvi > 0){
+                    retoorn = secDegree();
+//                    if(expProvi > 2) {
+//                        for (int i = 0; i < retoorn.length; i++) {
+//                            retoorn[i] = (float) (Math.pow(retoorn[i], 1 / (float) expProvi));
+//                        }
+//                    }
+                    for (int i = 0; i < retoorn.length; i++) {
+                        retoorn[i] = (float) (Math.pow(retoorn[i], 1 / (float) expProvi));
+                    }
+                    float [] retoorn2 = new float[retoorn.length * 2];
+                    createNegative(retoorn2, retoorn);
+                    Arrays.sort(retoorn2);
+                    return retoorn2;
+                }
+            }
+        }
+        System.out.println(Arrays.toString(this.mon));
+        System.out.println(Arrays.toString(this.coeF));
+        System.out.println(Arrays.toString(this.expI));
+        System.out.println(this.maxExp);
         return null;
+    }
+
+    float [] secDegree(){
+        float [] retoorn;
+        int count = 0;
+        float a = 0;
+        float b = 0;
+        float c = 0;
+        for(int i = 0; i < this.mon.length; i++){
+            if(this.mon[i] != 0) {
+                if (count == 0) {
+                    a = this.mon[i];
+                    count = 1;
+                }else if (count == 1) {
+                    b = this.mon[i];
+                    count = 2;
+                }else{
+                    c = this.mon[i];
+                }
+            }
+        }
+
+        float disc = (float)(Math.pow(b,2) + (-4 * a * c));
+
+        if(disc < 0){
+            return null;
+        }
+        else if(disc == 0 ){
+            retoorn = new float []{(b * -1) / (2 * a)};
+        }
+        else{
+            retoorn = new float []{((b * -1) + (float) Math.sqrt(disc)) / (2 * a), ((b * -1) - (float)Math.sqrt(disc)) / (2 * a)};
+            Arrays.sort(retoorn);
+        }
+        return retoorn;
+    }
+
+    int bQuad(){
+        int provisional = this.mon.length - 1;
+        for(int i = this.mon.length - 1; i >= 0; i--){
+            if(this.mon[i] == 0){
+                continue;
+            }
+            else if((this.mon.length - 1) - i > 1 && (this.mon.length - 1) - i < provisional){
+                provisional = (this.mon.length - 1) - i;
+            }
+            else if(((this.mon.length - 1) - i) % provisional != 0){
+                provisional = -1;
+            }
+        }
+        return provisional;
+    }
+    void createNegative(float [] re2, float [] re1){
+        for(int i = 0, count = 0; i < re2.length; i++){
+            re2[i++] = re1[count++];
+            re2[i] = re2[i - 1] * -1;
+        }
     }
 
     // Torna "true" si els polinomis són iguals. Això és un override d'un mètode de la classe Object
