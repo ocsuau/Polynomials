@@ -194,8 +194,8 @@ public class PolynomialTest {
         p = new Polynomial("x^12 + 1");
         assertNull(p.roots());
 
-//        p = new Polynomial("x^4 + 12x^3 + 11x^2 - 132x + 108");
-//        assertEqualsFloats(new float[]{-9, -6, 1, 2}, p.roots());
+        p = new Polynomial("x^4 + 12x^3 + 11x^2 - 132x + 108");
+        assertEqualsFloats(new float[]{-9, -6, 1, 2}, p.roots());
     }
 
     private void assertEqualsFloats(float[] a1, float[] a2) {
