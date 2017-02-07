@@ -46,34 +46,24 @@ public class Polynomial {
 
     // Multiplica el polinomi amb un altre. No modifica el polinomi actual (this). Genera un de nou
     public Polynomial mult(Polynomial p2) {
-        float [] provisional = new float [(this.mon.length + p2.mon.length) - 1];
+        float[] provisional = new float[(this.mon.length + p2.mon.length) - 1];
         Polynomial result = new Polynomial();
-        Polynomial op1;
-        Polynomial op2;
-        if(this.mon.length >= p2.mon.length){
-            op1 = p2;
-            op2 = this;
-        }
-        else{
-            op1 = this;
-            op2 = p2;
-        }
-
-        for(int i = 0; i < op1.mon.length; i++) {
-            if(op1.mon[i] == 0){
+        for (int i = 0; i < this.mon.length; i++) {
+            if (this.mon[i] == 0) {
                 continue;
             }
-            for (int j = 0; j < op2.mon.length; j++) {
-                if(op2.mon[j] == 0){
+            for (int j = 0; j < p2.mon.length; j++) {
+                if (p2.mon[j] == 0) {
                     continue;
                 }
-                provisional[provisional.length - (((op1.mon.length - i)) + ((op2.mon.length - j) - 1))] = op1.mon[i] * op2.mon[j];
+                    provisional[provisional.length - (((this.mon.length - i)) + ((p2.mon.length - j) - 1))] = this.mon[i] * p2.mon[j];
+                }
+                result = result.add(new Polynomial(provisional));
+                Arrays.fill(provisional, 0);
             }
-            result = result.add(new Polynomial(provisional));
-            Arrays.fill(provisional, 0);
-        }
         return result;
     }
+
 
     // Divideix el polinomi amb un altre. No modifica el polinomi actual (this). Genera un de nou
     // Torna el quocient i també el residu (ambdós polinomis)
