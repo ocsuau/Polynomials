@@ -64,53 +64,31 @@ public class Polynomial {
         return result;
     }
 
-
     // Divideix el polinomi amb un altre. No modifica el polinomi actual (this). Genera un de nou
     // Torna el quocient i també el residu (ambdós polinomis)
     public Polynomial[] div(Polynomial p2) {
-        Polynomial provi = this;
-        Polynomial [] retoorn = new Polynomial [2];
-        Polynomial productOne;
-        Polynomial fullProduct;
+        Polynomial provi = new Polynomial(this.monStr.toString());
+        Polynomial indiValue;
+        Polynomial [] result = new Polynomial [] {new Polynomial(), new Polynomial()};
         StringBuilder sb = new StringBuilder();
-        int posFirstV;
-        int firstExp;
-        while (true){
-            posFirstV = findFirstValue(provi);
-            firstExp = ((provi.mon.length - 1) - posFirstV);
-            if(firstExp < p2.mon.length - 1){
-                retoorn[1] = new Polynomial(provi.toString());
-                return retoorn;
-            }
-            sb.append((int) (provi.mon[posFirstV] / p2.mon[0]));
-            if((firstExp) - (p2.mon.length -1) > 0){
+        while(provi.maxExp >= p2.maxExp){
+            sb.append((int)(provi.mon[0] / p2.mon[0]));
+            if((provi.maxExp - p2.maxExp) > 0){
                 sb.append("x");
-                if((firstExp) - (p2.mon.length -1) > 1){
-                    sb.append("^" + ((firstExp) - (p2.mon.length -1)));
+                if((provi.maxExp - p2.maxExp) > 1){
+                    sb.append("^" + (provi.maxExp - p2.maxExp));
                 }
             }
-            productOne = new Polynomial(sb.toString());
-            if(retoorn[0] == null){
-                retoorn[0] = new Polynomial(sb.toString());
-            }
-            else{
-                retoorn[0] = retoorn[0].add(productOne);
-            }
-            fullProduct = p2.mult(productOne);
-            changeSign(fullProduct);
-            fullProduct = new Polynomial(fullProduct.mon);
-            provi = provi.add(fullProduct);
+            indiValue = new Polynomial(sb.toString());
+            result[0] = result[0].add(indiValue);
+            indiValue = p2.mult(indiValue);
+            indiValue.changeSign(indiValue);
+            indiValue = new Polynomial(indiValue.mon);
+            provi = provi.add(indiValue);
             sb.delete(0,sb.length());
         }
-    }
-
-    private int findFirstValue(Polynomial p){
-        for(int i = 0; i < p.mon.length; i++){
-            if(p.mon[i] != 0){
-                return i;
-            }
-        }
-        return 0;
+        result[1] = new Polynomial(provi.toString());
+        return result;
     }
 
     void changeSign(Polynomial fullProduct){
@@ -168,23 +146,22 @@ public class Polynomial {
     }
 
 
-    float [] secDegree(float [] monF){
-        float [] retoorn;
+    float [] secDegree(float [] monF) {
+        float[] retoorn;
         int count = 0;
         float a = 0;
         float b = 0;
         float c = 0;
-        for(int i = 0; i < monF.length; i++){
-            if(monF[i] != 0) {
+        for (float f : monF) {
+            if (f != 0) {
                 if (count == 0) {
-                    a = monF[i];
-                    count = 1;
-                }else if (count == 1) {
-                    b = monF[i];
-                    count = 2;
-                }else{
-                    c = monF[i];
+                    a = f;
+                } else if (count == 1) {
+                    b = f;
+                } else {
+                    c = f;
                 }
+                count++;
             }
         }
 
