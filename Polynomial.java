@@ -29,7 +29,6 @@ public class Polynomial {
 
     // Suma el polinomi amb un altre. No modifica el polinomi actual (this). Genera un de nou
     public Polynomial add(Polynomial p) {
-        Polynomial result;
         if(p.monStr.charAt(0) == '-'){
             p.monStr.delete(0,1);
             p.monStr.insert(0," - ");
@@ -37,7 +36,7 @@ public class Polynomial {
         else{
             p.monStr.insert(0," + ");
         }
-        return result = new Polynomial (this.monStr +""+ p.monStr);
+        return new Polynomial (this.monStr +""+ p.monStr);
     }
 
     // Multiplica el polinomi amb un altre. No modifica el polinomi actual (this). Genera un de nou
@@ -98,7 +97,7 @@ public class Polynomial {
                 return null;
             } else {
                 if (this.mon[this.mon.length - 1] > 0 && (this.mon.length - 1) % 2 != 0) {
-                    retoorn = new float[]{(float) (Math.pow(this.mon[this.mon.length - 1], 1 / (float) (this.mon.length - 1f))) * -1};
+                    retoorn = new float[]{(float) (Math.pow(this.mon[this.mon.length - 1], 1 / (this.mon.length - 1f))) * -1};
                     return retoorn;
                 } else {
                     if ((this.mon.length - 1) == 1) {
@@ -113,7 +112,7 @@ public class Polynomial {
             }
         } else if (this.mon.length - Zvalue(this.mon) == 3) {
             if (this.mon.length - 1 == 2) {
-                return retoorn = secDegree(this.mon);
+                return secDegree(this.mon);
             } else {
                 int expProvi = bQuad();
                 if (expProvi > 0) {
@@ -129,8 +128,7 @@ public class Polynomial {
             }
         }
         else{
-            float [] fRuf = calcRuf();
-            return fRuf;
+            return calcRuf();
         }
         return null;
     }
@@ -282,8 +280,8 @@ public class Polynomial {
 
     int Zvalue(float [] cfs){
         int count = 0;
-        for(int i = 0; i < cfs.length; i++){
-            if(cfs[i] == 0){
+        for(float prov : cfs){
+            if(prov == 0){
                 count ++;
             }
         }
@@ -319,7 +317,7 @@ public class Polynomial {
     }
 
     void assignValues(String [] monOm, int [] expI){
-        for(int i = 0, j = 0; i < monOm.length; i++){
+        for(int i = 0; i < monOm.length; i++){
             if(monOm[i].contains("x")){
                 if(monOm[i].charAt(1) == 'x') {
                     mon[(mon.length - 1) - expI[i]] += (monOm[i].charAt(0) == '-') ? -1 : 1;
