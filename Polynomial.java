@@ -169,9 +169,7 @@ public class Polynomial {
     float [] secDegree(float [] monF) {
         float[] retoorn;
         int count = 0;
-        float a = 0;
-        float b = 0;
-        float c = 0;
+        float a = 0, b = 0, c = 0;
         for (float f : monF) {
             if (f != 0) {
                 if (count == 0) {
@@ -201,7 +199,6 @@ public class Polynomial {
     int bQuad(){
         int provisional = this.mon.length - 1;
         for(int i = 1; i < this.mon.length; i++){
-        //for(int i = this.mon.length - 1; i >= 0; i--){
             if(this.mon[i] == 0){
                 continue;
             }
