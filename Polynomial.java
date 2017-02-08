@@ -90,7 +90,40 @@ public class Polynomial {
 
     // Troba les arrels del polinomi, ordenades de menor a major
     public float[] roots() {
-        float provi;
+        float [] retoorn;
+        int expQuad = bQuad();
+        float provisional;
+        if ((this.mon.length - Zvalue(this.mon) == 2) && this.mon[this.mon.length - 1] != 0) {
+            provisional = this.mon[this.mon.length - 1];
+            provisional *= -1;
+            if ((this.mon.length - 1) % 2 == 0) {
+                if (this.mon[this.mon.length - 1] < 0) {
+                    return new float[]{(float) (Math.pow(provisional, 1 / (this.mon.length - 1f))) * -1, (float) Math.pow(provisional, 1 / (this.mon.length - 1f))};
+                }
+            } else {
+                if (this.mon[this.mon.length - 1] < 0) {
+                    return new float[]{(float) (Math.pow(provisional, 1 / (this.mon.length - 1f)))};
+                } else {
+                    provisional *= -1;
+                    return new float[]{(float) (Math.pow(provisional, 1 / (this.mon.length - 1f))) * -1};
+                }
+            }
+        }
+        else if(this.mon.length - Zvalue(this.mon) == 3 || expQuad > 0){
+            retoorn = secDegree(this.mon);
+            if(this.mon.length - 1 == 2){
+                return retoorn;
+            }
+            else{
+                for (int i = 0; i < retoorn.length; i++) {
+                    retoorn[i] = (float) (Math.pow(retoorn[i], 1 / (float) expQuad));
+                }
+                float[] retoorn2 = new float[retoorn.length * 2];
+                return createNegative(retoorn2, retoorn);
+            }
+        }
+
+        /*float provi;
         float[] retoorn;
         if (this.mon.length - Zvalue(this.mon) == 2) {
             if ((this.mon[this.mon.length - 1] > 0 && (this.mon.length - 1) % 2 == 0) || this.mon[this.mon.length - 1] == 0) {
@@ -129,8 +162,8 @@ public class Polynomial {
         }
         else{
             return calcRuf();
-        }
-        return null;
+        }*/
+            return null;
     }
 
     float [] secDegree(float [] monF) {
@@ -167,15 +200,16 @@ public class Polynomial {
 
     int bQuad(){
         int provisional = this.mon.length - 1;
-        for(int i = this.mon.length - 1; i >= 0; i--){
+        for(int i = 1; i < this.mon.length; i++){
+        //for(int i = this.mon.length - 1; i >= 0; i--){
             if(this.mon[i] == 0){
                 continue;
             }
-            else if((this.mon.length - 1) - i > 1 && (this.mon.length - 1) - i < provisional){
+            else if((this.mon.length - 1) - i > 1 && (this.mon.length - 1) - i == provisional / 2){
                 provisional = (this.mon.length - 1) - i;
             }
-            else if(((this.mon.length - 1) - i) % provisional != 0){
-                provisional = -1;
+            else if(i != this.mon.length - 1){
+                return -1;
             }
         }
         return provisional;
@@ -227,11 +261,13 @@ public class Polynomial {
             }
         }
     }
-    void createNegative(float [] re2, float [] re1){
+    float [] createNegative(float [] re2, float [] re1){
         for(int i = 0, count = 0; i < re2.length; i++){
             re2[i++] = re1[count++];
             re2[i] = re2[i - 1] * -1;
         }
+        Arrays.sort(re2);
+        return re2;
     }
 
     int Ruffini(Polynomial rufProv2, float [] rufProv3, int divPro){
