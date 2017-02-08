@@ -2,7 +2,6 @@ import java.util.Arrays;
 
 public class Polynomial {
     private float [] mon;
-    private int maxExp = 0;
     private StringBuilder monStr = new StringBuilder("");
 
     // Constructor per defecte. Genera un polinomi zero
@@ -22,11 +21,8 @@ public class Polynomial {
         s = s.replace(" + "," +");
         s = s.replace(" - "," -");
         String [] monOm = s.split(" ");
-        if(monOm[0].charAt(0) != '-'){
-            monOm[0] = '+' + monOm[0];
-        }
+        monOm[0] = (monOm[0].charAt(0) != '-') ? '+' + monOm[0]: monOm[0];
         int [] expI = calcExpStr(monOm);
-        mon = new float[maxExp + 1];
         assignValues(monOm, expI);
         passToString();
     }
@@ -57,10 +53,10 @@ public class Polynomial {
                     continue;
                 }
                     provisional[provisional.length - (((this.mon.length - i)) + ((p2.mon.length - j) - 1))] = this.mon[i] * p2.mon[j];
-                }
-                result = result.add(new Polynomial(provisional));
-                Arrays.fill(provisional, 0);
             }
+            result = result.add(new Polynomial(provisional));
+            Arrays.fill(provisional, 0);
+        }
         return result;
     }
 
@@ -70,22 +66,16 @@ public class Polynomial {
         Polynomial provi = new Polynomial(this.monStr.toString());
         Polynomial indiValue;
         Polynomial [] result = new Polynomial [] {new Polynomial(), new Polynomial()};
-        StringBuilder sb = new StringBuilder();
-        while(provi.maxExp >= p2.maxExp){
-            sb.append((int)(provi.mon[0] / p2.mon[0]));
-            if((provi.maxExp - p2.maxExp) > 0){
-                sb.append("x");
-                if((provi.maxExp - p2.maxExp) > 1){
-                    sb.append("^" + (provi.maxExp - p2.maxExp));
-                }
-            }
-            indiValue = new Polynomial(sb.toString());
+        float [] provisional;
+        while(provi.mon.length >= p2.mon.length) {
+            provisional = new float [(provi.mon.length - p2.mon.length) + 1];
+            provisional[0] = ((int) (provi.mon[0] / p2.mon[0]));
+            indiValue = new Polynomial(provisional);
             result[0] = result[0].add(indiValue);
             indiValue = p2.mult(indiValue);
             indiValue.changeSign(indiValue);
             indiValue = new Polynomial(indiValue.mon);
             provi = provi.add(indiValue);
-            sb.delete(0,sb.length());
         }
         result[1] = new Polynomial(provi.toString());
         return result;
@@ -145,7 +135,6 @@ public class Polynomial {
         return null;
     }
 
-
     float [] secDegree(float [] monF) {
         float[] retoorn;
         int count = 0;
@@ -164,9 +153,7 @@ public class Polynomial {
                 count++;
             }
         }
-
         float disc = (float)(Math.pow(b,2) + (-4 * a * c));
-
         if(disc < 0){
             return null;
         }
@@ -313,20 +300,11 @@ public class Polynomial {
             }
             else if(i > 0){
                 if(monStr.length() > 0) {
-                    if (mon[i] > 0) {
-                        monStr.append(" + ");
-                    } else {
-                        monStr.append(" - ");
-                    }
+                    monStr.append((mon[i] > 0) ? " + " : " - ");
                 }
             }
             if(!(Math.abs(mon[i]) == 1) || ((i == mon.length - 1) && (Math.abs(mon[i]) == 1))){
-                if(mon[i] < 0){
-                    monStr.append(Math.abs((int) mon[i]));
-                }
-                else{
-                    monStr.append((int) mon[i]);
-                }
+                monStr.append(Math.abs((int) mon[i]));
             }
             if((mon.length -i) - 1 > 0){
                 monStr.append("x");
@@ -344,41 +322,33 @@ public class Polynomial {
         for(int i = 0, j = 0; i < monOm.length; i++){
             if(monOm[i].contains("x")){
                 if(monOm[i].charAt(1) == 'x') {
-                    if (monOm[i].charAt(0) == '-') {
-                        mon[maxExp - expI[i]] += -1;
-                    } else {
-                        mon[maxExp - expI[i]] += 1;
-                    }
-                    continue;
+                    mon[(mon.length - 1) - expI[i]] += (monOm[i].charAt(0) == '-') ? -1 : 1;
                 }
                 else{
-                    mon[maxExp - expI[i]] += Integer.parseInt(monOm[i].substring(0, monOm[i].indexOf("x")));
+                    mon[(mon.length - 1) - expI[i]] += Integer.parseInt(monOm[i].substring(0, monOm[i].indexOf("x")));
                 }
             }
             else{
-                mon[maxExp - expI[i]] += Integer.parseInt(monOm[i]);
+                mon[(mon.length - 1) - expI[i]] += Integer.parseInt(monOm[i]);
             }
         }
     }
 
     int [] calcExpStr(String [] monOm){
         int [] retoorn = new int [monOm.length];
+        int maxExpo = 0;
         for(int i = 0; i < monOm.length; i++){
             if(monOm[i].contains("x")){
-                if(monOm[i].contains("^") && !(monOm[i].contains("^1 "))){
-                    retoorn[i] = Integer.parseInt(monOm[i].substring(monOm[i].indexOf("^")+1));
-                }
-                else{
-                    retoorn[i] = 1;
-                }
+                retoorn[i] = (monOm[i].contains("^") && !(monOm[i].contains("^1 "))) ? Integer.parseInt(monOm[i].substring(monOm[i].indexOf("^") + 1)) : 1;
             }
             else{
                 retoorn[i] = 0;
             }
-            if(maxExp < retoorn[i]){
-                maxExp = retoorn[i];
+            if(maxExpo < retoorn[i]){
+                maxExpo = retoorn[i];
             }
         }
+        this.mon = new float[maxExpo + 1];
         return retoorn;
     }
 }
