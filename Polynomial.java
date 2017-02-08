@@ -122,48 +122,10 @@ public class Polynomial {
                 return createNegative(retoorn2, retoorn);
             }
         }
-
-        /*float provi;
-        float[] retoorn;
-        if (this.mon.length - Zvalue(this.mon) == 2) {
-            if ((this.mon[this.mon.length - 1] > 0 && (this.mon.length - 1) % 2 == 0) || this.mon[this.mon.length - 1] == 0) {
-                return null;
-            } else {
-                if (this.mon[this.mon.length - 1] > 0 && (this.mon.length - 1) % 2 != 0) {
-                    retoorn = new float[]{(float) (Math.pow(this.mon[this.mon.length - 1], 1 / (this.mon.length - 1f))) * -1};
-                    return retoorn;
-                } else {
-                    if ((this.mon.length - 1) == 1) {
-                        retoorn = new float[]{this.mon[this.mon.length - 1] * -1};
-                        return retoorn;
-                    }
-                    provi = this.mon[this.mon.length - 1];
-                    provi *= -1;
-                    retoorn = new float[]{(float) (Math.pow(provi, 1 / (float) (this.mon.length - 1f))) * -1, (float) Math.pow(provi, 1 / (float) (this.mon.length - 1f))};
-                    return retoorn;
-                }
-            }
-        } else if (this.mon.length - Zvalue(this.mon) == 3) {
-            if (this.mon.length - 1 == 2) {
-                return secDegree(this.mon);
-            } else {
-                int expProvi = bQuad();
-                if (expProvi > 0) {
-                    retoorn = secDegree(this.mon);
-                    for (int i = 0; i < retoorn.length; i++) {
-                        retoorn[i] = (float) (Math.pow(retoorn[i], 1 / (float) expProvi));
-                    }
-                    float[] retoorn2 = new float[retoorn.length * 2];
-                    createNegative(retoorn2, retoorn);
-                    Arrays.sort(retoorn2);
-                    return retoorn2;
-                }
-            }
-        }
         else{
             return calcRuf();
-        }*/
-            return null;
+        }
+        return null;
     }
 
     float [] secDegree(float [] monF) {
@@ -213,13 +175,10 @@ public class Polynomial {
     }
 
     float [] calcRuf(){
-        int divPro= 1;
-        int divPro2;
-        int nRuf = (this.mon.length - 1) - 2;
-        float [] retoorn1 = new float[nRuf];
+        float[] retoorn1 = new float[(this.mon.length - 1) - 2];
         Polynomial rufProv2 = new Polynomial (this.mon);
         float [] rufProv3 = new float [rufProv2.mon.length - 1];
-        for(int i = 0; i < nRuf; i++) {
+        for (int i = 0, divPro = 1, divPro2; i < retoorn1.length; i++) {
             while (divPro != rufProv2.mon[rufProv2.mon.length - 1]) {
                 if (rufProv2.mon[rufProv2.mon.length - 1] % divPro == 0) {
                     divPro2 = Ruffini(rufProv2, rufProv3, divPro);
@@ -241,23 +200,18 @@ public class Polynomial {
         }
         float [] retoorn2 = secDegree(rufProv2.mon);
         float [] finalRetoorn = new float[retoorn1.length + retoorn2.length];
-        reasignarValores(finalRetoorn, retoorn1);
-        reasignarValores(finalRetoorn, retoorn2);
+        reasignarValores(finalRetoorn, retoorn1, 0);
+        reasignarValores(finalRetoorn, retoorn2, retoorn1.length);
         Arrays.sort(finalRetoorn);
         return finalRetoorn;
     }
 
-    void reasignarValores(float [] finalRetoorn, float [] retoorn){
-        int provisional = 0;
-        for(int j = 0; j < finalRetoorn.length;j++){
-            if(finalRetoorn[j] == 0){
-                finalRetoorn[j] = retoorn[provisional++];
-            }
-            if(provisional == retoorn.length){
-                break;
-            }
+    void reasignarValores(float[] finalRetoorn, float[] retoorn, int posInicial) {
+        for (int j = 0; j < retoorn.length; j++, posInicial++) {
+            finalRetoorn[posInicial] = retoorn[j];
         }
     }
+
     float [] createNegative(float [] re2, float [] re1){
         for(int i = 0, count = 0; i < re2.length; i++){
             re2[i++] = re1[count++];
@@ -268,14 +222,14 @@ public class Polynomial {
     }
 
     int Ruffini(Polynomial rufProv2, float [] rufProv3, int divPro){
-        double provisional;
+        float provisional;
         rufProv3[0] = rufProv2.mon[0];
         for(int i = 1; i < rufProv2.mon.length; i++){
             provisional = divPro*rufProv3[i - 1];
-            rufProv3[i] = rufProv2.mon[i] + (float) provisional;
+            rufProv3[i] = rufProv2.mon[i] + provisional;
             if(i == rufProv3.length - 1){
                 provisional = divPro * rufProv3[i];
-                if(rufProv2.mon[i + 1] + (float) provisional == 0){
+                if (rufProv2.mon[i + 1] + provisional == 0) {
                     return divPro;
                 }
                 else{
