@@ -1,34 +1,83 @@
 import java.util.Arrays;
 
 public class Polynomial {
+
+    //Variables miembro float y StringBuilder (Lo considero variable miembro para generarlo al crear el objeto y no cada vez que
+    //se llama a toString(),
     private float [] mon;
     private StringBuilder monStr = new StringBuilder("");
 
-    // Constructor per defecte. Genera un polinomi zero
+    //Constructor por defecto. Genera Polynomio con valor 0
     public Polynomial() {
         mon = new float[]{0};
-        passToString();
+        monStr.append("0");
     }
 
-    // Constructor a partir dels coeficients del polinomi en forma d'array
+    //Constructor a partir de array tipo float. Generamos el StringBuilder
     public Polynomial(float[] cfs) {
         mon = cfs;
         passToString();
     }
 
-    // Constructor a partir d'un string
+    //Constructor a partir de String. Generamos array tipo float y el StringBuilder con los valores factorizados.
     public Polynomial(String s) {
+        //Si el primer valor es positivo, le ponemos el signo delante para no cambiar el código solo por el primer monomio.
+        //(si el valor es negativo, ya viene con el signo incluído).
+        s = (s.charAt(0) != '-') ? '+' + s : s;
+
+        //Juntamos los signos con sus respectivos monomios para no tener operadores matemáticos ocupando elementos de la matriz de strings.
+        //Seguidamente creamos la matriz cortando el string por cada espacio.
         s = s.replace(" + "," +");
         s = s.replace(" - "," -");
         String [] monOm = s.split(" ");
-        monOm[0] = (monOm[0].charAt(0) != '-') ? '+' + monOm[0]: monOm[0];
+
+        //Creamos matriz donde almacenamos los exponentes (con el orden respectivo a sus coeficientes) y al mismo tiempo calculamos el
+        //mayor exponente, que nos permite inicializar la variable miembro float con la longitud fija.
         int [] expI = calcExpStr(monOm);
+
+        //Asignamos valores al float miembro y los colocamos en las posiciones correspondientes dependiendo de sus exponentes. Seguidamente,
+        //construímos el stringBuilder miembro.
         assignValues(monOm, expI);
         passToString();
     }
 
-    // Suma el polinomi amb un altre. No modifica el polinomi actual (this). Genera un de nou
+    int[] calcExpStr(String[] monOm) {
+        int[] retoorn = new int[monOm.length];
+        int maxExpo = 0;
+        for (int i = 0; i < monOm.length; i++) {
+            if (monOm[i].contains("x")) {
+                retoorn[i] = (monOm[i].contains("^") && !(monOm[i].contains("^1 "))) ? Integer.parseInt(monOm[i].substring(monOm[i].indexOf("^") + 1)) : 1;
+            } else {
+                retoorn[i] = 0;
+            }
+            if (maxExpo < retoorn[i]) {
+                maxExpo = retoorn[i];
+            }
+        }
+        this.mon = new float[maxExpo + 1];
+        return retoorn;
+    }
+
+    void assignValues(String[] monOm, int[] expI) {
+        for (int i = 0; i < monOm.length; i++) {
+            if (monOm[i].contains("x")) {
+                if (monOm[i].charAt(1) == 'x') {
+                    mon[(mon.length - 1) - expI[i]] += (monOm[i].charAt(0) == '-') ? -1 : 1;
+                } else {
+                    mon[(mon.length - 1) - expI[i]] += Integer.parseInt(monOm[i].substring(0, monOm[i].indexOf("x")));
+                }
+            } else {
+                mon[(mon.length - 1) - expI[i]] += Integer.parseInt(monOm[i]);
+            }
+        }
+    }
+
+    //Sumamos polinomios. (No modificamos ningún polinomio, retornamos el resultado de la suma)
     public Polynomial add(Polynomial p) {
+        //En esta función, a partir de los stringBuilder de cada objeto, los juntamos y creamos un nuevo objeto pasándole como parámetro
+        //los dos stringBuilder en uno, ya que al contruir el objeto, factorizamos sus monomios, y nos ofrece los mismos resultados que
+        //sumar los monomios. (Previamente, añadimos los signos de sumar y/o restar a uno de los stringBuilder para que el objeto se pueda
+        //contruir correctamente.
         if(p.monStr.charAt(0) == '-'){
             p.monStr.delete(0,1);
             p.monStr.insert(0," - ");
@@ -39,10 +88,16 @@ public class Polynomial {
         return new Polynomial (this.monStr +""+ p.monStr);
     }
 
-    // Multiplica el polinomi amb un altre. No modifica el polinomi actual (this). Genera un de nou
+    //Multiplicamos polinomios. (No modificamos ningún polinomio, retornamos el resultado de la multiplicación)
     public Polynomial mult(Polynomial p2) {
+        //En provisional iremos almacenando la multiplicación de todos y cada uno de los monomios de uno de los polinomios con cada
+        //uno de los monomios del otro polinomio.
+
+        //En result iremos almacenando la suma de los polinomios que vayamos almacenando en provisional.
         float[] provisional = new float[(this.mon.length + p2.mon.length) - 1];
         Polynomial result = new Polynomial();
+        //Si uno de los valores del float miembro de cualquiera de los objetos es igual a 0, volvemos a la condición de la iteración.
+        //(para no hacer trabajar al algoritmo de forma inecesaria)
         for (int i = 0; i < this.mon.length; i++) {
             if (this.mon[i] == 0) {
                 continue;
@@ -51,18 +106,20 @@ public class Polynomial {
                 if (p2.mon[j] == 0) {
                     continue;
                 }
-                    provisional[provisional.length - (((this.mon.length - i)) + ((p2.mon.length - j) - 1))] = this.mon[i] * p2.mon[j];
+                //Multiplicamos coeficientes y lo colocamos en la posición correspondiente a la suma de los exponentes de dichos coeficientes.
+                provisional[provisional.length - (((this.mon.length - i)) + ((p2.mon.length - j) - 1))] = this.mon[i] * p2.mon[j];
             }
             result = result.add(new Polynomial(provisional));
+
+            //Antes de volver a la iteración principal, reiniciamos los valores de provisional.
             Arrays.fill(provisional, 0);
         }
         return result;
     }
 
-    // Divideix el polinomi amb un altre. No modifica el polinomi actual (this). Genera un de nou
-    // Torna el quocient i també el residu (ambdós polinomis)
+    //Dividimos polinomios. (No modificamos ningún polinomio, retornamos el cociente y el residuo (Array de polinomios con dos posiciones).
     public Polynomial[] div(Polynomial p2) {
-        Polynomial provi = new Polynomial(this.monStr.toString());
+        Polynomial provi = new Polynomial(this.mon);
         Polynomial indiValue;
         Polynomial [] result = new Polynomial [] {new Polynomial(), new Polynomial()};
         float [] provisional;
@@ -200,13 +257,13 @@ public class Polynomial {
         }
         float [] retoorn2 = secDegree(rufProv2.mon);
         float [] finalRetoorn = new float[retoorn1.length + retoorn2.length];
-        reasignarValores(finalRetoorn, retoorn1, 0);
-        reasignarValores(finalRetoorn, retoorn2, retoorn1.length);
+        assignValuesRuf(finalRetoorn, retoorn1, 0);
+        assignValuesRuf(finalRetoorn, retoorn2, retoorn1.length);
         Arrays.sort(finalRetoorn);
         return finalRetoorn;
     }
 
-    void reasignarValores(float[] finalRetoorn, float[] retoorn, int posInicial) {
+    void assignValuesRuf(float[] finalRetoorn, float[] retoorn, int posInicial) {
         for (int j = 0; j < retoorn.length; j++, posInicial++) {
             finalRetoorn[posInicial] = retoorn[j];
         }
@@ -301,39 +358,5 @@ public class Polynomial {
         if(monStr.length() == 0){
             monStr.append("0");
         }
-    }
-
-    void assignValues(String [] monOm, int [] expI){
-        for(int i = 0; i < monOm.length; i++){
-            if(monOm[i].contains("x")){
-                if(monOm[i].charAt(1) == 'x') {
-                    mon[(mon.length - 1) - expI[i]] += (monOm[i].charAt(0) == '-') ? -1 : 1;
-                }
-                else{
-                    mon[(mon.length - 1) - expI[i]] += Integer.parseInt(monOm[i].substring(0, monOm[i].indexOf("x")));
-                }
-            }
-            else{
-                mon[(mon.length - 1) - expI[i]] += Integer.parseInt(monOm[i]);
-            }
-        }
-    }
-
-    int [] calcExpStr(String [] monOm){
-        int [] retoorn = new int [monOm.length];
-        int maxExpo = 0;
-        for(int i = 0; i < monOm.length; i++){
-            if(monOm[i].contains("x")){
-                retoorn[i] = (monOm[i].contains("^") && !(monOm[i].contains("^1 "))) ? Integer.parseInt(monOm[i].substring(monOm[i].indexOf("^") + 1)) : 1;
-            }
-            else{
-                retoorn[i] = 0;
-            }
-            if(maxExpo < retoorn[i]){
-                maxExpo = retoorn[i];
-            }
-        }
-        this.mon = new float[maxExpo + 1];
-        return retoorn;
     }
 }
