@@ -180,7 +180,7 @@ public class Polynomial {
             }
         }
         else{
-            return calcRuf();
+            return calcDivRuf();
         }
         return null;
     }
@@ -231,7 +231,7 @@ public class Polynomial {
         return provisional;
     }
 
-    float [] calcRuf(){
+    float[] calcDivRuf() {
         float[] retoorn1 = new float[(this.mon.length - 1) - 2];
         Polynomial rufProv2 = new Polynomial (this.mon);
         float [] rufProv3 = new float [rufProv2.mon.length - 1];
@@ -254,6 +254,9 @@ public class Polynomial {
                     }
                 }
             }
+        }
+        if (retoorn1[retoorn1.length - 1] == 0) {
+            return null;
         }
         float [] retoorn2 = secDegree(rufProv2.mon);
         float [] finalRetoorn = new float[retoorn1.length + retoorn2.length];
