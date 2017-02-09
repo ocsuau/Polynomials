@@ -41,32 +41,50 @@ public class Polynomial {
         passToString();
     }
 
-    int[] calcExpStr(String[] monOm) {
+    //Guardamos los exponentes en un array para poder colocar los coeficientes en la posición correspondiente del array miembro.
+    //También calculamos el valor del mayor exponente para inicializar el array miembro con tamaño fijo.
+    private int[] calcExpStr(String[] monOm) {
         int[] retoorn = new int[monOm.length];
         int maxExpo = 0;
+        //Comprobamos si el elemento string en cuestión contiene el carácter "x" y, en ese caso, si contiene el carácter "^" y no va
+        //seguido de un 1, el exponente será igual a el número que siga al carácter "^", si no, será igual a 1.
+
+        //Si no contiene "x", el exponente será igual a 0.
         for (int i = 0; i < monOm.length; i++) {
             if (monOm[i].contains("x")) {
                 retoorn[i] = (monOm[i].contains("^") && !(monOm[i].contains("^1 "))) ? Integer.parseInt(monOm[i].substring(monOm[i].indexOf("^") + 1)) : 1;
             } else {
                 retoorn[i] = 0;
             }
+
+            //Calculamos el mayor exponente.
             if (maxExpo < retoorn[i]) {
                 maxExpo = retoorn[i];
             }
         }
+
+        //Inicializamos el array miembro con una longitud igual al mayor exponente.
         this.mon = new float[maxExpo + 1];
         return retoorn;
     }
 
-    void assignValues(String[] monOm, int[] expI) {
+    //Calculamos el coeficiente correspondiente a partir del array de string y lo sumamos al valor que está en la posición correspondiente
+    // en el array miembro a partir de la longitud del array miembro menos el exponente correspondiente a ese coeficiente. (De este modo,
+    //al mismo tiempo que asignamos los coeficientes en sus respectivas posiciones, los factorizamos)
+    private void assignValues(String[] monOm, int[] expI) {
         for (int i = 0; i < monOm.length; i++) {
             if (monOm[i].contains("x")) {
+                //El primer carácter de cada string es su signo, el segundo solo puede ser el primer dígito del coeficiente o la incógnita
                 if (monOm[i].charAt(1) == 'x') {
+                    //En caso de que el segundo carácter sea la incógnita, dependiendo del signo, sumaremos 1 o -1.
                     mon[(mon.length - 1) - expI[i]] += (monOm[i].charAt(0) == '-') ? -1 : 1;
                 } else {
+                    //Si el segundo carácter no es la incógnita, significa que existe coeficiente y por lo tanto podemos hacer un parseInt
+                    //del substring del elemento en cuestión hasta la posición de la incógnita.
                     mon[(mon.length - 1) - expI[i]] += Integer.parseInt(monOm[i].substring(0, monOm[i].indexOf("x")));
                 }
             } else {
+                //En este punto sabemos que el elemento en cuestión no contiene incógnita, así que realizamos parseInt de elemento en cuestión.
                 mon[(mon.length - 1) - expI[i]] += Integer.parseInt(monOm[i]);
             }
         }
@@ -137,7 +155,8 @@ public class Polynomial {
         return result;
     }
 
-    void changeSign(Polynomial fullProduct){
+    //Cambiamos los signos de lo valores que debemos restar al dividendo.
+    private void changeSign(Polynomial fullProduct) {
         for(int i = 0; i < fullProduct.mon.length; i++){
             if(fullProduct.mon[i] != 0){
                 fullProduct.mon[i] *= -1;
@@ -185,10 +204,17 @@ public class Polynomial {
         return null;
     }
 
-    float [] secDegree(float [] monF) {
+    //Calculamos la ecuación de segundo grado
+    private float[] secDegree(float[] monF) {
         float[] retoorn;
         int count = 0;
+        //Asignamos los valores 0 por defecto ya que, al hacer ecuaciones de segundo grado sobre polinomios bicuadráticos, puede que no
+        //tengamos los valores de todas las incógnitas (Puede que solo operemos con 1 o 2 valores)
         float a = 0, b = 0, c = 0;
+
+        //Asignamos los valores correspondientes (no asignamos los elementos con valor 0) Este bucle es necesario porque, al hacer
+        //ecuaciones de segundo grado de polinomios bicuadráticos, cabe la posibilidad que el grado sea superior a 2, y por lo tanto
+        //cabe la posibilidad de asignar 0 cuando no se debe
         for (float f : monF) {
             if (f != 0) {
                 if (count == 0) {
@@ -215,15 +241,20 @@ public class Polynomial {
         return retoorn;
     }
 
-    int bQuad(){
+    //Comprobamos que un polinomio sea bicuadrático
+    private int bQuad() {
         int provisional = this.mon.length - 1;
         for(int i = 1; i < this.mon.length; i++){
             if(this.mon[i] == 0){
                 continue;
             }
+
+            //Comprobamos que el exponente sea igual a la división del exponente siguiente entre 2
             else if((this.mon.length - 1) - i > 1 && (this.mon.length - 1) - i == provisional / 2){
                 provisional = (this.mon.length - 1) - i;
             }
+
+            //Si llegamos a este punto, si no estamos operando sobre el término independiente, es porque el polinomio no es bicuadrático.
             else if(i != this.mon.length - 1){
                 return -1;
             }
@@ -231,7 +262,7 @@ public class Polynomial {
         return provisional;
     }
 
-    float[] calcDivRuf() {
+    private float[] calcDivRuf() {
         float[] retoorn1 = new float[(this.mon.length - 1) - 2];
         Polynomial rufProv2 = new Polynomial (this.mon);
         float [] rufProv3 = new float [rufProv2.mon.length - 1];
@@ -266,13 +297,16 @@ public class Polynomial {
         return finalRetoorn;
     }
 
-    void assignValuesRuf(float[] finalRetoorn, float[] retoorn, int posInicial) {
+    private void assignValuesRuf(float[] finalRetoorn, float[] retoorn, int posInicial) {
         for (int j = 0; j < retoorn.length; j++, posInicial++) {
             finalRetoorn[posInicial] = retoorn[j];
         }
     }
 
-    float [] createNegative(float [] re2, float [] re1){
+    //Asignamos valores a la matriz que contendrá dos veces los valores resultantes de calcular la ecuación de segundo grado de un
+    //polinomio bicuadrático. A los valores duplicados les cambiaremos el signo (Ya que la raíz de un polinomio bicuadrático retorna
+    //el valor positivo y negativo.
+    private float[] createNegative(float[] re2, float[] re1) {
         for(int i = 0, count = 0; i < re2.length; i++){
             re2[i++] = re1[count++];
             re2[i] = re2[i - 1] * -1;
@@ -281,7 +315,7 @@ public class Polynomial {
         return re2;
     }
 
-    int Ruffini(Polynomial rufProv2, float [] rufProv3, int divPro){
+    private int Ruffini(Polynomial rufProv2, float[] rufProv3, int divPro) {
         float provisional;
         rufProv3[0] = rufProv2.mon[0];
         for(int i = 1; i < rufProv2.mon.length; i++){
@@ -325,7 +359,10 @@ public class Polynomial {
             return monStr.toString();
     }
 
-    int Zvalue(float [] cfs){
+    //Contamos qué cantidad de 0 contiene un array de coeficientes de un polinomio. (Me parece necesario este método ya que podemos
+    //calcular la cantidad real de monomios de un polinomio, ya que puede que tengamos posiciones vacías por no tener valores con ese
+    //grado en el polinomio.
+    private int Zvalue(float[] cfs) {
         int count = 0;
         for(float prov : cfs){
             if(prov == 0){
@@ -335,11 +372,13 @@ public class Polynomial {
         return count;
     }
 
-    void passToString(){
+    //Creamos el stringBuilder miembro a partir del array miembro.
+    private void passToString() {
         for(int i = 0; i < mon.length; i++){
             if(mon[i] == 0){
                 continue;
             }
+            //Si estamos tratando el primer monomio del polinomio y es un valor negativo, añadimos el signo "-" (sin espacios)
             if(monStr.length() == 0 && mon[i] < 0){
                 monStr.append("-");
             }
