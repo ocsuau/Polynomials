@@ -137,21 +137,19 @@ public class Polynomial {
 
     //Dividimos polinomios. (No modificamos ningún polinomio, retornamos el cociente y el residuo (Array de polinomios con dos posiciones).
     public Polynomial[] div(Polynomial p2) {
-        Polynomial provi = new Polynomial(this.mon);
         Polynomial indiValue;
-        Polynomial [] result = new Polynomial [] {new Polynomial(), new Polynomial()};
+        Polynomial[] result = new Polynomial[]{new Polynomial(), new Polynomial(this.mon)};
         float [] provisional;
-        while(provi.mon.length >= p2.mon.length) {
-            provisional = new float [(provi.mon.length - p2.mon.length) + 1];
-            provisional[0] = ((int) (provi.mon[0] / p2.mon[0]));
+        while (result[1].mon.length >= p2.mon.length) {
+            provisional = new float[(result[1].mon.length - p2.mon.length) + 1];
+            provisional[0] = ((int) (result[1].mon[0] / p2.mon[0]));
             indiValue = new Polynomial(provisional);
             result[0] = result[0].add(indiValue);
             indiValue = p2.mult(indiValue);
             indiValue.changeSign(indiValue);
             indiValue = new Polynomial(indiValue.mon);
-            provi = provi.add(indiValue);
+            result[1] = result[1].add(indiValue);
         }
-        result[1] = new Polynomial(provi.toString());
         return result;
     }
 
