@@ -202,18 +202,26 @@ public class Polynomial {
         }
     }
 
-    // Troba les arrels del polinomi, ordenades de menor a major
+    // Comprobamos si las raíces las podemos calcular con ecuaciones de primer grado, de segundo o tenemos que aplicar ruffini.
     public float[] roots() {
         float[] retoorn;
         float provisional;
+
+        //Si el polinomio está formado por dos monomios y uno de éllos es el término independiente.
         if ((this.mon.length - Zvalue(this.mon) == 2) && this.mon[this.mon.length - 1] != 0) {
+
+            //Cambiamos de signo el término independiente para valores si se puede operar sobre él. Lo guardamos en provisional.
             provisional = this.mon[this.mon.length - 1];
             provisional *= -1;
+
+            //Si el grado de la raíz es par y el término independiente es negativo (sin haberle cambiado el signo).
             if ((this.mon.length - 1) % 2 == 0) {
                 if (this.mon[this.mon.length - 1] < 0) {
                     return new float[]{(float) (Math.pow(provisional, 1 / (this.mon.length - 1f))) * -1, (float) Math.pow(provisional, 1 / (this.mon.length - 1f))};
                 }
             } else {
+                //En este punto sabemos que el grado de la raíz es impar. Así que valoraremos el signo del término independiente para
+                //retornar un resultado u otro.
                 if (this.mon[this.mon.length - 1] < 0) {
                     return new float[]{(float) (Math.pow(provisional, 1 / (this.mon.length - 1f)))};
                 } else {
@@ -221,19 +229,31 @@ public class Polynomial {
                     return new float[]{(float) (Math.pow(provisional, 1 / (this.mon.length - 1f))) * -1};
                 }
             }
+            //En este punto sabemos que el polinomio no está formado por dos monomios y/o está formado por dos monomios pero uno
+            //de éllos no es término independiente.
+
+            //Comprobamos si el grado del polinomio es 2 o si es un polinomio bicuadrático.
         } else if (this.mon.length - Zvalue(this.mon) == 3 || bQuad() > 0) {
+            //Realizamos ecuación de segundo grado
             retoorn = secDegree(this.mon);
+
+            //Si el grado del polinomio es 2, retornamos retoorn.
             if (this.mon.length - 1 == 2) {
                 return retoorn;
             } else {
+                //Si el polinomio no es de grado 2, significa que es bicuadrático, así que calculamos la raíz (cuyo grado es el exponente más
+                //pequeño del polinomio mayor de 1) de cada resultado que nos haya devuelto el método secDegree.
                 for (int i = 0; i < retoorn.length; i++) {
                     retoorn[i] = (float) (Math.pow(retoorn[i], 1 / (float) bQuad()));
                 }
+                //Finalmente, creamos un nuevo float que contendrá los valores de retoorn y los mismos valores con los signos cambiados, acción
+                //que realizaremos en el método createNegative.
                 float[] retoorn2 = new float[retoorn.length * 2];
                 return createNegative(retoorn2, retoorn);
             }
         } else {
-            return calcDivRuf();
+            //Si no se ha podido aplicar ninguna de las ecuaciones anteriores, retornaremos el resultado de calcDivRuff() (pudiendo ser null).
+            return calcDivRuff();
         }
         return null;
     }
@@ -295,21 +315,21 @@ public class Polynomial {
         return provisional;
     }
 
-    private float[] calcDivRuf() {
+    private float[] calcDivRuff() {
         float[] retoorn1 = new float[(this.mon.length - 1) - 2];
-        Polynomial rufProv2 = new Polynomial(this.mon);
-        float[] rufProv3 = new float[rufProv2.mon.length - 1];
+        Polynomial ruffProv2 = new Polynomial(this.mon);
+        float[] ruffProv3 = new float[ruffProv2.mon.length - 1];
         for (int i = 0, divPro = 1, divPro2; i < retoorn1.length; i++) {
-            while (divPro != rufProv2.mon[rufProv2.mon.length - 1]) {
-                if (rufProv2.mon[rufProv2.mon.length - 1] % divPro == 0) {
-                    divPro2 = Ruffini(rufProv2, rufProv3, divPro);
+            while (divPro != ruffProv2.mon[ruffProv2.mon.length - 1]) {
+                if (ruffProv2.mon[ruffProv2.mon.length - 1] % divPro == 0) {
+                    divPro2 = Ruffini(ruffProv2, ruffProv3, divPro);
                     if (Math.abs(divPro2) == Math.abs(divPro)) {
-                        rufProv2 = new Polynomial(rufProv3);
-                        rufProv3 = new float[rufProv2.mon.length - 1];
+                        ruffProv2 = new Polynomial(ruffProv3);
+                        ruffProv3 = new float[ruffProv2.mon.length - 1];
                         retoorn1[i] = divPro2;
                         divPro = 1;
                         break;
-                    } else if (Math.abs(divPro) != Math.abs(rufProv2.mon[rufProv2.mon.length - 1])) {
+                    } else if (Math.abs(divPro) != Math.abs(ruffProv2.mon[ruffProv2.mon.length - 1])) {
                         divPro++;
                     } else {
                         break;
@@ -320,15 +340,15 @@ public class Polynomial {
         if (retoorn1[retoorn1.length - 1] == 0) {
             return null;
         }
-        float[] retoorn2 = secDegree(rufProv2.mon);
+        float[] retoorn2 = secDegree(ruffProv2.mon);
         float[] finalRetoorn = new float[retoorn1.length + retoorn2.length];
-        assignValuesRuf(finalRetoorn, retoorn1, 0);
-        assignValuesRuf(finalRetoorn, retoorn2, retoorn1.length);
+        assignValuesRuff(finalRetoorn, retoorn1, 0);
+        assignValuesRuff(finalRetoorn, retoorn2, retoorn1.length);
         Arrays.sort(finalRetoorn);
         return finalRetoorn;
     }
 
-    private void assignValuesRuf(float[] finalRetoorn, float[] retoorn, int posInicial) {
+    private void assignValuesRuff(float[] finalRetoorn, float[] retoorn, int posInicial) {
         for (int j = 0; j < retoorn.length; j++, posInicial++) {
             finalRetoorn[posInicial] = retoorn[j];
         }
