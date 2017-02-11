@@ -526,6 +526,7 @@ public class Polynomial {
         /*Ya recorrido el array de floats miembro, si no hemos introducido ningún valor al stringBuilder miembro, significa que el array
         de floats solo contenía 0, así que introducimos en el stringBuilder el número 0.*/
         if (monStr.length() == 0) {
+            mon = new float[]{0};
             monStr.append("0");
         }
     }
