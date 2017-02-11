@@ -4,7 +4,7 @@ public class Polynomial {
 
     //Variables miembro float y StringBuilder (Lo considero variable miembro para generarlo al crear el objeto y no cada vez que
     //se llama a toString(),
-    private float [] mon;
+    private float[] mon;
     private StringBuilder monStr = new StringBuilder("");
 
     //Constructor por defecto. Genera Polynomio con valor 0
@@ -21,19 +21,20 @@ public class Polynomial {
 
     //Constructor a partir de String. Generamos array tipo float y el StringBuilder con los valores factorizados.
     public Polynomial(String s) {
+
         //Si el primer valor es positivo, le ponemos el signo delante para no cambiar el código solo por el primer monomio.
         //(si el valor es negativo, ya viene con el signo incluído).
         s = (s.charAt(0) != '-') ? '+' + s : s;
 
         //Juntamos los signos con sus respectivos monomios para no tener operadores matemáticos ocupando elementos de la matriz de strings.
         //Seguidamente creamos la matriz cortando el string por cada espacio.
-        s = s.replace(" + "," +");
-        s = s.replace(" - "," -");
-        String [] monOm = s.split(" ");
+        s = s.replace(" + ", " +");
+        s = s.replace(" - ", " -");
+        String[] monOm = s.split(" ");
 
         //Creamos matriz donde almacenamos los exponentes (con el orden respectivo a sus coeficientes) y al mismo tiempo calculamos el
         //mayor exponente, que nos permite inicializar la variable miembro float con la longitud fija.
-        int [] expI = calcExpStr(monOm);
+        int[] expI = calcExpStr(monOm);
 
         //Asignamos valores al float miembro y los colocamos en las posiciones correspondientes dependiendo de sus exponentes. Seguidamente,
         //construímos el stringBuilder miembro.
@@ -46,6 +47,7 @@ public class Polynomial {
     private int[] calcExpStr(String[] monOm) {
         int[] retoorn = new int[monOm.length];
         int maxExpo = 0;
+
         //Comprobamos si el elemento string en cuestión contiene el carácter "x" y, en ese caso, si contiene el carácter "^" y no va
         //seguido de un 1, el exponente será igual a el número que siga al carácter "^", si no, será igual a 1.
 
@@ -74,8 +76,10 @@ public class Polynomial {
     private void assignValues(String[] monOm, int[] expI) {
         for (int i = 0; i < monOm.length; i++) {
             if (monOm[i].contains("x")) {
+
                 //El primer carácter de cada string es su signo, el segundo solo puede ser el primer dígito del coeficiente o la incógnita
                 if (monOm[i].charAt(1) == 'x') {
+
                     //En caso de que el segundo carácter sea la incógnita, dependiendo del signo, sumaremos 1 o -1.
                     mon[(mon.length - 1) - expI[i]] += (monOm[i].charAt(0) == '-') ? -1 : 1;
                 } else {
@@ -92,28 +96,30 @@ public class Polynomial {
 
     //Sumamos polinomios. (No modificamos ningún polinomio, retornamos el resultado de la suma)
     public Polynomial add(Polynomial p) {
+
         //En esta función, a partir de los stringBuilder de cada objeto, los juntamos y creamos un nuevo objeto pasándole como parámetro
         //los dos stringBuilder en uno, ya que al contruir el objeto, factorizamos sus monomios, y nos ofrece los mismos resultados que
         //sumar los monomios. (Previamente, añadimos los signos de sumar y/o restar a uno de los stringBuilder para que el objeto se pueda
         //contruir correctamente.
-        if(p.monStr.charAt(0) == '-'){
-            p.monStr.delete(0,1);
-            p.monStr.insert(0," - ");
+        if (p.monStr.charAt(0) == '-') {
+            p.monStr.delete(0, 1);
+            p.monStr.insert(0, " - ");
+        } else {
+            p.monStr.insert(0, " + ");
         }
-        else{
-            p.monStr.insert(0," + ");
-        }
-        return new Polynomial (this.monStr +""+ p.monStr);
+        return new Polynomial(this.monStr + "" + p.monStr);
     }
 
     //Multiplicamos polinomios. (No modificamos ningún polinomio, retornamos el resultado de la multiplicación)
     public Polynomial mult(Polynomial p2) {
+
         //En provisional iremos almacenando la multiplicación de todos y cada uno de los monomios de uno de los polinomios con cada
         //uno de los monomios del otro polinomio.
 
         //En result iremos almacenando la suma de los polinomios que vayamos almacenando en provisional.
         float[] provisional = new float[(this.mon.length + p2.mon.length) - 1];
         Polynomial result = new Polynomial();
+
         //Si uno de los valores del float miembro de cualquiera de los objetos es igual a 0, volvemos a la condición de la iteración.
         //(para no hacer trabajar al algoritmo de forma inecesaria)
         for (int i = 0; i < this.mon.length; i++) {
@@ -124,6 +130,7 @@ public class Polynomial {
                 if (p2.mon[j] == 0) {
                     continue;
                 }
+
                 //Multiplicamos coeficientes y lo colocamos en la posición correspondiente a la suma de los exponentes de dichos coeficientes.
                 provisional[provisional.length - (((this.mon.length - i)) + ((p2.mon.length - j) - 1))] = this.mon[i] * p2.mon[j];
             }
@@ -137,17 +144,50 @@ public class Polynomial {
 
     //Dividimos polinomios. (No modificamos ningún polinomio, retornamos el cociente y el residuo (Array de polinomios con dos posiciones).
     public Polynomial[] div(Polynomial p2) {
+        ////////////////////////////////////////////////////////////////////////////////
+        //COMENTAR A CLASE SI AL NO PODERSE REALIZAR LA DIVISIÓN SE DEBE RETORNAR NULL//
+        ////////////////////////////////////////////////////////////////////////////////
+        if (this.mon.length < p2.mon.length) {
+            return null;
+        }
+
+        //DEPENDIENDO DE LO QUE SE HABLE EN CLASE, COMENTAR RESULT.
+        //indivalue contendrá el cociente que vayamos calculando a cada iteración para operar con él sobre el dividendo.
         Polynomial indiValue;
+
+        //En result posición 1 metemos el dividendo, ya que al final del bucle se quedará como residuo.
         Polynomial[] result = new Polynomial[]{new Polynomial(), new Polynomial(this.mon)};
-        float [] provisional;
+
+        //Creamos provisional para indicar el exponente (del cociente que vayamos calculando) a partir de su length
+        float[] provisional;
+
+        //Mientras el grado del dividendo sea mayor o igual al grado del divisor...
         while (result[1].mon.length >= p2.mon.length) {
+            //Indicamos que el length de provisional (el grado de cociente que estamos calculando) será igual al grado del dividendo
+            //menos el grado del divisor + 1. En su primera posición meteremos el resultado de dividir el cociente con mayor exponente
+            //del dividendo entre el cociente con mayor exponente del divisor (Siempre estarán en la primera posición de sus respectivos
+            //array miembro.
             provisional = new float[(result[1].mon.length - p2.mon.length) + 1];
             provisional[0] = ((int) (result[1].mon[0] / p2.mon[0]));
+
+            //Creamos indivalue a partir del float calculado anteriormente para poder operar con él utilizando los métodos que hemos definido
+            //anteriormente.
             indiValue = new Polynomial(provisional);
+
+            //Lo vamos introduciendo en la posición de cocientes de result.
             result[0] = result[0].add(indiValue);
+
+            //Multiplicamos el valor calculado anteriormente por el divisor y lo metemos de nuevo en indivalue (para no crear variables de más).
+            //Seguidamente le cambiamos el signo a cada monomio, ya que debe restarse con el dividendo.
             indiValue = p2.mult(indiValue);
             indiValue.changeSign(indiValue);
+
+            //Debemos crear de nuevo indivalue con los signos cambiados ya que hemos modificado su array de float miembro, pero no su stringBuilder.
+            //De esta forma actualizamos su stringBuilder y podemos realizar la suma (Ya que la suma se realiza a partir de los stringBuilder
+            //miembro de los objetos a sumar).
             indiValue = new Polynomial(indiValue.mon);
+
+            //Lo sumamos al dividendo, donde el resultado será el residuo, por eso operamos sobre la posición de residuo de result.
             result[1] = result[1].add(indiValue);
         }
         return result;
@@ -155,8 +195,8 @@ public class Polynomial {
 
     //Cambiamos los signos de lo valores que debemos restar al dividendo.
     private void changeSign(Polynomial fullProduct) {
-        for(int i = 0; i < fullProduct.mon.length; i++){
-            if(fullProduct.mon[i] != 0){
+        for (int i = 0; i < fullProduct.mon.length; i++) {
+            if (fullProduct.mon[i] != 0) {
                 fullProduct.mon[i] *= -1;
             }
         }
@@ -164,8 +204,7 @@ public class Polynomial {
 
     // Troba les arrels del polinomi, ordenades de menor a major
     public float[] roots() {
-        float [] retoorn;
-        int expQuad = bQuad();
+        float[] retoorn;
         float provisional;
         if ((this.mon.length - Zvalue(this.mon) == 2) && this.mon[this.mon.length - 1] != 0) {
             provisional = this.mon[this.mon.length - 1];
@@ -182,21 +221,18 @@ public class Polynomial {
                     return new float[]{(float) (Math.pow(provisional, 1 / (this.mon.length - 1f))) * -1};
                 }
             }
-        }
-        else if(this.mon.length - Zvalue(this.mon) == 3 || expQuad > 0){
+        } else if (this.mon.length - Zvalue(this.mon) == 3 || bQuad() > 0) {
             retoorn = secDegree(this.mon);
-            if(this.mon.length - 1 == 2){
+            if (this.mon.length - 1 == 2) {
                 return retoorn;
-            }
-            else{
+            } else {
                 for (int i = 0; i < retoorn.length; i++) {
-                    retoorn[i] = (float) (Math.pow(retoorn[i], 1 / (float) expQuad));
+                    retoorn[i] = (float) (Math.pow(retoorn[i], 1 / (float) bQuad()));
                 }
                 float[] retoorn2 = new float[retoorn.length * 2];
                 return createNegative(retoorn2, retoorn);
             }
-        }
-        else{
+        } else {
             return calcDivRuf();
         }
         return null;
@@ -225,15 +261,14 @@ public class Polynomial {
                 count++;
             }
         }
-        float disc = (float)(Math.pow(b,2) + (-4 * a * c));
-        if(disc < 0){
+        //Ecuación de segundo grado
+        float disc = (float) (Math.pow(b, 2) + (-4 * a * c));
+        if (disc < 0) {
             return null;
-        }
-        else if(disc == 0 ){
-            retoorn = new float []{(b * -1) / (2 * a)};
-        }
-        else{
-            retoorn = new float []{((b * -1) + (float) Math.sqrt(disc)) / (2 * a), ((b * -1) - (float)Math.sqrt(disc)) / (2 * a)};
+        } else if (disc == 0) {
+            retoorn = new float[]{(b * -1) / (2 * a)};
+        } else {
+            retoorn = new float[]{((b * -1) + (float) Math.sqrt(disc)) / (2 * a), ((b * -1) - (float) Math.sqrt(disc)) / (2 * a)};
             Arrays.sort(retoorn);
         }
         return retoorn;
@@ -242,18 +277,18 @@ public class Polynomial {
     //Comprobamos que un polinomio sea bicuadrático
     private int bQuad() {
         int provisional = this.mon.length - 1;
-        for(int i = 1; i < this.mon.length; i++){
-            if(this.mon[i] == 0){
+        for (int i = 1; i < this.mon.length; i++) {
+            if (this.mon[i] == 0) {
                 continue;
             }
 
             //Comprobamos que el exponente sea igual a la división del exponente siguiente entre 2
-            else if((this.mon.length - 1) - i > 1 && (this.mon.length - 1) - i == provisional / 2){
+            else if ((this.mon.length - 1) - i > 1 && (this.mon.length - 1) - i == provisional / 2) {
                 provisional = (this.mon.length - 1) - i;
             }
 
             //Si llegamos a este punto, si no estamos operando sobre el término independiente, es porque el polinomio no es bicuadrático.
-            else if(i != this.mon.length - 1){
+            else if (i != this.mon.length - 1) {
                 return -1;
             }
         }
@@ -262,23 +297,21 @@ public class Polynomial {
 
     private float[] calcDivRuf() {
         float[] retoorn1 = new float[(this.mon.length - 1) - 2];
-        Polynomial rufProv2 = new Polynomial (this.mon);
-        float [] rufProv3 = new float [rufProv2.mon.length - 1];
+        Polynomial rufProv2 = new Polynomial(this.mon);
+        float[] rufProv3 = new float[rufProv2.mon.length - 1];
         for (int i = 0, divPro = 1, divPro2; i < retoorn1.length; i++) {
             while (divPro != rufProv2.mon[rufProv2.mon.length - 1]) {
                 if (rufProv2.mon[rufProv2.mon.length - 1] % divPro == 0) {
                     divPro2 = Ruffini(rufProv2, rufProv3, divPro);
                     if (Math.abs(divPro2) == Math.abs(divPro)) {
-                        rufProv2 = new Polynomial (rufProv3);
-                        rufProv3 = new float [rufProv2.mon.length - 1];
-                        retoorn1[i] =  divPro2;
+                        rufProv2 = new Polynomial(rufProv3);
+                        rufProv3 = new float[rufProv2.mon.length - 1];
+                        retoorn1[i] = divPro2;
                         divPro = 1;
                         break;
-                    }
-                    else if(Math.abs(divPro) != Math.abs(rufProv2.mon[rufProv2.mon.length - 1])){
+                    } else if (Math.abs(divPro) != Math.abs(rufProv2.mon[rufProv2.mon.length - 1])) {
                         divPro++;
-                    }
-                    else{
+                    } else {
                         break;
                     }
                 }
@@ -287,8 +320,8 @@ public class Polynomial {
         if (retoorn1[retoorn1.length - 1] == 0) {
             return null;
         }
-        float [] retoorn2 = secDegree(rufProv2.mon);
-        float [] finalRetoorn = new float[retoorn1.length + retoorn2.length];
+        float[] retoorn2 = secDegree(rufProv2.mon);
+        float[] finalRetoorn = new float[retoorn1.length + retoorn2.length];
         assignValuesRuf(finalRetoorn, retoorn1, 0);
         assignValuesRuf(finalRetoorn, retoorn2, retoorn1.length);
         Arrays.sort(finalRetoorn);
@@ -305,7 +338,7 @@ public class Polynomial {
     //polinomio bicuadrático. A los valores duplicados les cambiaremos el signo (Ya que la raíz de un polinomio bicuadrático retorna
     //el valor positivo y negativo.
     private float[] createNegative(float[] re2, float[] re1) {
-        for(int i = 0, count = 0; i < re2.length; i++){
+        for (int i = 0, count = 0; i < re2.length; i++) {
             re2[i++] = re1[count++];
             re2[i] = re2[i - 1] * -1;
         }
@@ -316,21 +349,19 @@ public class Polynomial {
     private int Ruffini(Polynomial rufProv2, float[] rufProv3, int divPro) {
         float provisional;
         rufProv3[0] = rufProv2.mon[0];
-        for(int i = 1; i < rufProv2.mon.length; i++){
-            provisional = divPro*rufProv3[i - 1];
+        for (int i = 1; i < rufProv2.mon.length; i++) {
+            provisional = divPro * rufProv3[i - 1];
             rufProv3[i] = rufProv2.mon[i] + provisional;
-            if(i == rufProv3.length - 1){
+            if (i == rufProv3.length - 1) {
                 provisional = divPro * rufProv3[i];
                 if (rufProv2.mon[i + 1] + provisional == 0) {
                     return divPro;
-                }
-                else{
-                    if(divPro > 0){
+                } else {
+                    if (divPro > 0) {
                         rufProv3[0] = rufProv2.mon[0];
                         i = 0;
                         divPro *= -1;
-                    }
-                    else{
+                    } else {
                         return 0;
                     }
                 }
@@ -339,22 +370,23 @@ public class Polynomial {
         return 0;
     }
 
-    // Torna "true" si els polinomis són iguals. Això és un override d'un mètode de la classe Object
+    // Override del método equals de la clase Object. Comprobamos que los objetos que vamos a comparar sean de la misma clase y si
+    //es así, comprobamos que contengan los mismos valores.
     @Override
-    public boolean equals(Object o){
-        if(o instanceof Polynomial){
+    public boolean equals(Object o) {
+        if (o instanceof Polynomial) {
             Polynomial content = (Polynomial) o;
-            if (this.monStr.toString().equals(content.monStr.toString())){
+            if (this.monStr.toString().equals(content.monStr.toString())) {
                 return true;
             }
         }
         return false;
     }
 
-    // Torna la representació en forma de String del polinomi. Override d'un mètode de la classe Object
+    // Override del método toString de la clase Object. Retornamos el stringBuilder miembro del objeto.
     @Override
     public String toString() {
-            return monStr.toString();
+        return monStr.toString();
     }
 
     //Contamos qué cantidad de 0 contiene un array de coeficientes de un polinomio. (Me parece necesario este método ya que podemos
@@ -362,9 +394,9 @@ public class Polynomial {
     //grado en el polinomio.
     private int Zvalue(float[] cfs) {
         int count = 0;
-        for(float prov : cfs){
-            if(prov == 0){
-                count ++;
+        for (float prov : cfs) {
+            if (prov == 0) {
+                count++;
             }
         }
         return count;
@@ -372,30 +404,38 @@ public class Polynomial {
 
     //Creamos el stringBuilder miembro a partir del array miembro.
     private void passToString() {
-        for(int i = 0; i < mon.length; i++){
-            if(mon[i] == 0){
+        for (int i = 0; i < mon.length; i++) {
+            if (mon[i] == 0) {
                 continue;
             }
             //Si estamos tratando el primer monomio del polinomio y es un valor negativo, añadimos el signo "-" (sin espacios)
-            if(monStr.length() == 0 && mon[i] < 0){
+            if (monStr.length() == 0 && mon[i] < 0) {
                 monStr.append("-");
             }
-            else if(i > 0){
-                if(monStr.length() > 0) {
+            //Si estamos, por lo menos, con el segundo monomio del polinomio y en el stringBuilder miembro tiene algún carácter ya
+            //introducido, introduciremos en el stringBuilder las operaciones de suma o resta dependiendo del signo del monomio
+            //que vayamos a introducir.
+            else if (i > 0) {
+                if (monStr.length() > 0) {
                     monStr.append((mon[i] > 0) ? " + " : " - ");
                 }
             }
-            if(!(Math.abs(mon[i]) == 1) || ((i == mon.length - 1) && (Math.abs(mon[i]) == 1))){
+            //Si el valor que estamos tratando es distinto a 1 o (es igual a 1 y es el término independiente (último valor del array miembro))
+            //introducimos el valor absoluto del valor que queramos introducir (ya que antes hemos introducido su signo)).
+            if (!(Math.abs(mon[i]) == 1) || ((i == mon.length - 1) && (Math.abs(mon[i]) == 1))) {
                 monStr.append(Math.abs((int) mon[i]));
             }
-            if((mon.length -i) - 1 > 0){
+            //Dependiendo de su posición en el array, introduciremos la incógnita y su exponente.
+            if ((mon.length - i) - 1 > 0) {
                 monStr.append("x");
-                if((mon.length - i) - 1 > 1){
-                    monStr.append("^" + ((mon.length -i) -1));
+                if ((mon.length - i) - 1 > 1) {
+                    monStr.append("^" + ((mon.length - i) - 1));
                 }
             }
         }
-        if(monStr.length() == 0){
+        //Ya recorrido el array de floats miembro, si no hemos introducido ningún valor al stringBuilder miembro, significa que el array
+        //de floats solo contenía 0, así que introducimos en el stringBuilder el número 0.
+        if (monStr.length() == 0) {
             monStr.append("0");
         }
     }
