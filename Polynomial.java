@@ -214,7 +214,8 @@ public class Polynomial {
             provisional = this.mon[this.mon.length - 1];
             provisional *= -1;
 
-            //Si el grado de la raíz es par y el término independiente es negativo (sin haberle cambiado el signo).
+            /*Si el grado de la raíz es par y el término independiente es negativo (sin haberle cambiado el signo) retornamos
+            los dos resultados posible.*/
             if ((this.mon.length - 1) % 2 == 0) {
                 if (this.mon[this.mon.length - 1] < 0) {
                     return new float[]{(float) (Math.pow(provisional, 1 / (this.mon.length - 1f))) * -1, (float) Math.pow(provisional, 1 / (this.mon.length - 1f))};
@@ -232,8 +233,8 @@ public class Polynomial {
             /*En este punto sabemos que el polinomio no está formado por dos monomios y/o está formado por dos monomios pero uno
             de éllos no es término independiente.*/
 
-            //Comprobamos si el grado del polinomio es 2 o si es un polinomio bicuadrático.
-        } else if (this.mon.length - Zvalue(this.mon) == 3 || bQuad() > 0) {
+            //Comprobamos si el grado del polinomio es 2 o si es un polinomio bicuadrático y está formado por 3 monomios.
+        } else if (this.mon.length - 1 == 2 || (this.mon.length - Zvalue(this.mon) == 3 && bQuad() > 0)) {
             //Realizamos ecuación de segundo grado
             retoorn = secDegree(this.mon);
 
