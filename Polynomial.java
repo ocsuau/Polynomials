@@ -234,7 +234,7 @@ public class Polynomial {
             de éllos no es término independiente.*/
 
             //Comprobamos si el grado del polinomio es 2 o si es un polinomio bicuadrático y está formado por 3 monomios.
-        } else if (this.mon.length - 1 == 2 || (this.mon.length - Zvalue(this.mon) == 3 && bQuad() > 0)) {
+        } else if (this.mon.length - 1 == 2 || (this.mon.length - Zvalue(this.mon) <= 3 && bQuad() > 0)) {
             //Realizamos ecuación de segundo grado
             retoorn = secDegree(this.mon);
 
@@ -263,8 +263,8 @@ public class Polynomial {
     private float[] secDegree(float[] monF) {
         float[] retoorn;
         int count = 0;
-        /*Asignamos los valores 0 por defecto ya que, al hacer ecuaciones de segundo grado sobre polinomios bicuadráticos, puede que no
-        tengamos los valores de todas las incógnitas (Puede que solo operemos con 1 o 2 valores)*/
+        /*Asignamos los valores 0 por defecto ya que, al hacer ecuaciones de segundo grado sobre polinomios bicuadráticos, puede que
+        no tengamos los valores de todas las incógnitas (Puede que solo operemos con 1 o 2 valores)*/
         float a = 0, b = 0, c = 0;
 
         /*Asignamos los valores correspondientes (no asignamos los elementos con valor 0) Este bucle es necesario porque, al hacer
@@ -339,14 +339,15 @@ public class Polynomial {
         //bucle:
         for (int i = 0, divPro = 1, divPro2; i < retoorn1.length; i++) {
 
-            /*Mientras el divisor que estamos comprobando sea distinto al término independiente del polinomio en cuestión (Si el
-            divisor llega a ser igual al término independiente, es porque al polinomio no se le ha podido aplicar ruffini, y por lo
-            tanto no tiene solución*/
+            /*Mientras el divisor que estamos comprobando sea distinto al coeficiente del monomio con menor exponente del polinomio
+            en cuestión (Si el divisor llega a ser igual al coeficiente del monomio con menor exponente del polinomio, es porque al
+            polinomio no se le ha podido aplicar ruffini, y por lo tanto no tiene solución*/
             while (divPro != ruffProv2.mon[ruffProv2.mon.length - 1]) {
 
-                /*Comprobamos que el número en cuestión es divisor del término independiente. Si es así, llamamos al método Ruffini
-                pasándole el polinomio al que queremos aplicar Ruffini, el float donde queremos guardar el polinomio resultante de
-                aplicar Ruffini al polinomio inicial, y el divisor candidato para realizar Ruffini correctamente.
+                /*Comprobamos que el número en cuestión es divisor del coeficiente del monomio con menor exponente del polinomio.
+                Si es así, llamamos al método Ruffini pasándole el polinomio al que queremos aplicar Ruffini, el float donde
+                queremos guardar el polinomio resultante de aplicar Ruffini al polinomio inicial, y el divisor candidato para realizar
+                Ruffini correctamente.
 
                 El resultado del Método Ruffini lo meteremos en la variable divPro2, y éste podrá ser el mismo número que le hemos
                 pasado, el mismo número con signo negativo o el número 0 (si es 0, sabemos que el divisor que le hemos pasado no es
@@ -440,10 +441,10 @@ public class Polynomial {
             provisional = divPro * ruffProv3[i - 1];
             ruffProv3[i] = ruffProv2.mon[i] + provisional;
             if (i == ruffProv3.length - 1) {
-                /*En este punto estamos en la última posición del array resultante. Sólo nos queda comprobar si (el término independiente
-                del array resultante por el divisor) sumado al término independiente del polinomio da como resultado 0.
-                Si es así, retornamos el divisor, si no, convertimos el divisor en si mismo con signo negativo y reiniciamos el proceso.
-                En caso de que el divisor ya fuera negativo, retornamos 0*/
+                /*En este punto estamos en la última posición del array resultante. Sólo nos queda comprobar si (el coeficiente
+                del monomio con menor exponente del polinomio del array resultante por el divisor) sumado al término independiente
+                del polinomio da como resultado 0. Si es así, retornamos el divisor, si no, convertimos el divisor en si mismo con
+                signo negativo y reiniciamos el proceso. En caso de que el divisor ya fuera negativo, retornamos 0*/
                 provisional = divPro * ruffProv3[i];
                 if (ruffProv2.mon[i + 1] + provisional == 0) {
                     return divPro;
