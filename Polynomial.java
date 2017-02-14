@@ -151,11 +151,10 @@ public class Polynomial {
         //En result posición 1 metemos el dividendo, ya que al final del bucle se quedará como residuo.
         Polynomial[] result = new Polynomial[]{new Polynomial(), new Polynomial(this.mon)};
 
-        /*Si el exponente del dividendo es menor que el exponente del divisor, significa que no podemos realizar la división, así
-        que retornamos el valor "0" como cociente y el dividendo como residuo*/
-        if (this.mon.length < p2.mon.length) {
-            return result;
-        }
+        /*Si el exponente del dividendo es menor que el exponente del divisor, significa que no podemos realizar la división
+        no entraremos en el bucle), así que retornamos result al final del método con los valores "0" como cociente y el
+        polinomio dividendo como residuo (Valores que ya hemos asignado en el paso anterior).*/
+
 
         //Creamos provisional para indicar el exponente (del cociente que vayamos calculando) a partir de su length
         float[] provisional;
