@@ -144,19 +144,18 @@ public class Polynomial {
 
     //Dividimos polinomios. (No modificamos ningún polinomio, retornamos el cociente y el residuo (Array de polinomios con dos posiciones).
     public Polynomial[] div(Polynomial p2) {
-        ////////////////////////////////////////////////////////////////////////////////
-        //COMENTAR A CLASE SI AL NO PODERSE REALIZAR LA DIVISIÓN SE DEBE RETORNAR NULL//
-        ////////////////////////////////////////////////////////////////////////////////
-        if (this.mon.length < p2.mon.length) {
-            return null;
-        }
 
-        //DEPENDIENDO DE LO QUE SE HABLE EN CLASE, COMENTAR RESULT.
         //indivalue contendrá el cociente que vayamos calculando a cada iteración para operar con él sobre el dividendo.
         Polynomial indiValue;
 
         //En result posición 1 metemos el dividendo, ya que al final del bucle se quedará como residuo.
         Polynomial[] result = new Polynomial[]{new Polynomial(), new Polynomial(this.mon)};
+
+        /*Si el exponente del dividendo es menor que el exponente del divisor, significa que no podemos realizar la división, así
+        que retornamos el valor "0" como cociente y el dividendo como residuo*/
+        if (this.mon.length < p2.mon.length) {
+            return result;
+        }
 
         //Creamos provisional para indicar el exponente (del cociente que vayamos calculando) a partir de su length
         float[] provisional;
@@ -329,6 +328,9 @@ public class Polynomial {
         al aplicar Ruffini sobre un polinomio, obtenemos un nuevo polinomio de un grado inferior.*/
         float[] ruffProv3 = new float[ruffProv2.mon.length - 1];
 
+        /*En finalRetoorn almacenaremos los resultados obtenidos con ruffini y los obtenidos con la ecuación de segundo grado*/
+        float[] finalRetoorn;
+
         /*Aplicaremos Ruffini tantas veces hasta conseguir que el polinomio en cuestión sea de grado 2. (El length de retoorn1 es igual
         al grado del polinomio en cuestión menos 1 (para no contar el término independiente) y menos 2 más, para asegurarnos de que,
         cuando sea de grado dos, aplicaremos ecuación de segundo grado.*/
@@ -336,7 +338,7 @@ public class Polynomial {
         /*Creamos las variables divPro y divPro2 para ir almacenando los divisores del término independiente del polinomio y compararlos
         después de pasarlos por el método Ruffini (Ruffini puede que nos devuelva el mismo valor que le hemos pasado, o el mismo valor
         con signo negativo)*/
-        //bucle:
+        bucle:
         for (int i = 0, divPro = 1, divPro2; i < retoorn1.length; i++) {
 
             /*Mientras el divisor que estamos comprobando sea distinto al coeficiente del monomio con menor exponente del polinomio
@@ -373,17 +375,24 @@ public class Polynomial {
                     } else if (Math.abs(divPro) != Math.abs(ruffProv2.mon[ruffProv2.mon.length - 1])) {
                         divPro++;
                     } else {
-                        /*retoorn1 = null;
-                        break bucle;*/
-                        break;
+                        if (i == 0) {
+                            retoorn1 = null;
+                            break bucle;
+                        }
                     }
                 }
             }
-        }//COMENTAR EN CLASE QUE SE DEBE RETORNAR EN CASO DE QUE RUFFINI NO SE CUMPLA PARCIALMENTE.
-        /*if (retoorn1[retoorn1.length - 1] == 0 || retoorn1 == null) {*/
+        }
+
         /*En caso de que no se haya podido aplicar ruffini desde el principio, retornamos null*/
-        if (retoorn1[retoorn1.length - 1] == 0) {
+        if (retoorn1 == null) {
             return null;
+        }
+        /*Comprobamos que ruffini no se haya realizado completamente. En caso afirmativo, retornamos únicamente los resultados que
+        hemos podido obtener (Llegados a este punto sabemos que hemos podido obtener, por lo menos, un resultado aplicando Ruffini*/
+        else if (retoorn1[retoorn1.length - 1] == 0) {
+            finalRetoorn = new float[retoorn1.length - Zvalue(retoorn1)];
+            assignValuesRuff(finalRetoorn, retoorn1, 0);
         }
 
         /*Si llegamos a este punto significa que hemos encontrado los resultados correctos aplicando ruffini.
@@ -391,18 +400,21 @@ public class Polynomial {
         convertido en un polinomio de grado dos. Metemos el resultado en retoorn2*/
         float[] retoorn2 = secDegree(ruffProv2.mon);
 
-        /*En finalRetoorn almacenaremos los resultados obtenidos con ruffini y los obtenidos con la ecuación de segundo grado*/
-        float[] finalRetoorn = new float[retoorn1.length + retoorn2.length];
-
         /*Llamamos al método assignValuesRuff para pasar los resultado obtenidos con ruffini y con la ecuación de segundo grado a
         finalRetoorn. (Como parámetros, le pasamos finalRetoorn, el array que queremos reasignar a finalRetoorn y la posición
         de finalRetoorn donde debe empezar a introducir los valores*/
-        assignValuesRuff(finalRetoorn, retoorn1, 0);
 
-        /*Comprobamos que la ecuación de segundo grado no haya retornado un resultado nulo*/
-        if (retoorn2 != null) {
+        /*Si secDegree nos ha devuelto un valor nulo, sólo meteremos en finalRetoorn los resultados obtenidos por ruffini. Si no,
+        meteremos ambos arrays en finalRetoorn*/
+        if (retoorn2 == null) {
+            finalRetoorn = new float[retoorn1.length];
+            assignValuesRuff(finalRetoorn, retoorn1, 0);
+        } else {
+            finalRetoorn = new float[retoorn1.length + retoorn2.length];
+            assignValuesRuff(finalRetoorn, retoorn1, 0);
             assignValuesRuff(finalRetoorn, retoorn2, retoorn1.length);
         }
+
         Arrays.sort(finalRetoorn);
         return finalRetoorn;
     }
