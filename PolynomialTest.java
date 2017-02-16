@@ -148,6 +148,12 @@ public class PolynomialTest {
         res = p1.div(p2);
         assertEquals(new Polynomial("-5x^5 + 5x^3 + 37x"), res[0]);
         assertEquals(new Polynomial("-37x - 9"), res[1]);
+
+        p1 = new Polynomial("-5x^7 + 42x^3 - 9");
+        p2 = new Polynomial("x^2 + 1");
+        res = p2.div(p1);
+        assertEquals(new Polynomial("0"), res[0]);
+        assertEquals(new Polynomial("x^2 + 1"), res[1]);
     }
 
     @Test
